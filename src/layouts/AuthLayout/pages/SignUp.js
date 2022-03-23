@@ -8,7 +8,7 @@ import { doc, setDoc } from "firebase/firestore";
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
-import { db, auth } from "../firebase";
+import { db, auth } from "../../../firebase";
 
 import {
   Container,
@@ -207,7 +207,7 @@ function SignUp() {
             Sign Up
           </Button>
 
-          <Link component={RouterLink} to="/signin" variant="body2">
+          <Link component={RouterLink} to="/auth/signin" variant="body2">
             Already have an account? Sign In
           </Link>
         </Box>
