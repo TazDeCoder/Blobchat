@@ -4,9 +4,9 @@ import Paper from "@mui/material/Paper";
 const ChatMessage = styled(Paper, {
   shouldForwardProp: (prop) => prop !== "isSender",
 })(({ theme, isSender }) => ({
-  maxWidth: "60%",
-  width: "45rem",
-  margin: "0.5rem 0",
+  maxWidth: "45rem",
+  width: "60%",
+  margin: "0.5rem",
   padding: "1rem",
   overflowWrap: "break-word",
   backgroundColor: `${theme.palette.primary.light}`,

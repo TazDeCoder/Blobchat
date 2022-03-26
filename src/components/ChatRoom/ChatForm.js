@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Container, TextField, Button } from "@mui/material";
+import { Box, TextField, Button } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 
 function ChatForm(props) {
@@ -26,16 +26,12 @@ function ChatForm(props) {
 
   return (
     <form onSubmit={sendHandler}>
-      <Container
+      <Box
         sx={{
           display: "flex",
           flexWrap: "wrap",
-          alignItems: "center",
           justifyContent: "flex-end",
-          maxWidth: "40rem",
-          width: "100%",
           p: 2,
-          bgcolor: "secondary.light",
         }}
       >
         <TextField
@@ -43,14 +39,7 @@ function ChatForm(props) {
             width: "90%",
             maxHeight: "6rem",
             overflow: "auto",
-            bgcolor: "secondary.light",
           }}
-          InputProps={{
-            sx: {
-              color: "secondary.contrastText",
-            },
-          }}
-          color="secondary"
           value={enteredMessage}
           multiline
           onChange={messageChangedHandler}
@@ -64,7 +53,7 @@ function ChatForm(props) {
         >
           Send
         </Button>
-      </Container>
+      </Box>
     </form>
   );
 }
