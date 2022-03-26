@@ -1,66 +1,42 @@
 import { Route, Switch, Redirect } from "react-router-dom";
 
-import { doc, setDoc } from "firebase/firestore";
-
 import { useAuthState } from "react-firebase-hooks/auth";
 
-import { CssBaseline, Box, Button } from "@mui/material";
+import CssBaseline from "@mui/material/CssBaseline";
 
-import { db, auth } from "./firebase";
+import { auth } from "./firebase";
 
-import SignIn from "./pages/SignIn";
-import SignUp from "./pages/SignUp";
-import Chat from "./components/Chat/Chat";
+import AuthLayout from "./layouts/AuthLayout/AuthLayout";
+import HomeLayout from "./layouts/HomeLayout/HomeLayout";
+
+let renderCount = 0;
 
 function App() {
-  const [user] = useAuthState(auth);
+  renderCount++;
+  console.log(renderCount);
 
-  const signOutHandler = () => {
-    setDoc(
-      doc(db, "users", auth.currentUser.uid),
-      {
-        isOnline: false,
-      },
-      { merge: true }
-    ).then(() => auth.signOut());
-  };
+  const [user] = useAuthState(auth);
 
   return (
     <>
       <CssBaseline />
       <Switch>
         <Route path="/" exact>
-          <Redirect to="/signin" />
+          <Redirect to="/auth" />
         </Route>
 
-        <Route path="/signin">
-          {user && <Redirect to="/chat" />}
-          <SignIn />
+        <Route path="/auth">
+          {user && <Redirect to="/home" />}
+          <AuthLayout />
         </Route>
 
-        <Route path="/signup">
-          {user && <Redirect to="/chat" />}
-          <SignUp />
+        <Route path="/home">
+          {!user && <Redirect to="/auth" />}
+          {user && <HomeLayout user={user} />}
         </Route>
 
-        <Route path="/chat" exact>
-          {!user && <Redirect to="/signin" />}
-          {user && (
-            <Box sx={{ height: "100vh", bgcolor: "#2c3e50" }}>
-              <Chat sender={auth.currentUser.uid} />
-              <Button
-                sx={{
-                  display: "block",
-                  margin: "0 auto",
-                }}
-                variant="outlined"
-                color="secondary"
-                onClick={signOutHandler}
-              >
-                Sign Out
-              </Button>
-            </Box>
-          )}
+        <Route path="*">
+          <h1>Not Found!</h1>
         </Route>
       </Switch>
     </>
