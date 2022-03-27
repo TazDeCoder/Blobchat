@@ -1,7 +1,7 @@
 import { Grid } from "@mui/material";
 
-import MainSidebar from "../../../components/MainSidebar/MainSidebar";
-import UserProfile from "../../../components/User/UserProfile";
+import MainSidebar from "../components/MainSidebar/MainSidebar";
+import UserProfile from "../components/User/UserProfile";
 
 function Profile(props) {
   return (

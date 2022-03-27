@@ -1,14 +1,8 @@
-import { useState } from "react";
-
-import { useForm, Controller } from "react-hook-form";
+import { useContext, useState } from "react";
 
 import { Link as RouterLink } from "react-router-dom";
 
-import { doc, setDoc } from "firebase/firestore";
-
-import { signInWithEmailAndPassword } from "firebase/auth";
-
-import { db, auth } from "../../../firebase";
+import { useForm, Controller } from "react-hook-form";
 
 import {
   Container,
@@ -22,9 +16,17 @@ import {
   Link,
 } from "@mui/material";
 
-import { LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  LockOutlined as LockOutlinedIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+} from "@mui/icons-material";
+
+import AuthContext from "../store/auth-context";
 
 function SignIn() {
+  const auth = useContext(AuthContext);
+
   const [showPassword, setShowPassword] = useState(false);
 
   const toggleShowPasswordHandler = () => {
@@ -39,22 +41,13 @@ function SignIn() {
     },
   });
 
-  const onSubmit = async ({ email, password }) => {
-    try {
-      const { user } = await signInWithEmailAndPassword(auth, email, password);
-      await setDoc(
-        doc(db, "users", user.uid),
-        {
-          isOnline: true,
-        },
-        { merge: true }
-      );
-    } catch (err) {
+  const onSubmit = ({ email, password }) => {
+    auth.onSignIn(email, password).catch(() => {
       setError("email", {
         type: "server",
         message: "Email doesn't exist!",
       });
-    }
+    });
   };
 
   return (
@@ -68,7 +61,7 @@ function SignIn() {
         }}
       >
         <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-          <LockOutlined />
+          <LockOutlinedIcon />
         </Avatar>
 
         <Typography component="h1" variant="h5">
@@ -121,7 +114,11 @@ function SignIn() {
                         onMouseDown={toggleShowPasswordHandler}
                         edge="end"
                       >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                        {showPassword ? (
+                          <VisibilityOffIcon />
+                        ) : (
+                          <VisibilityIcon />
+                        )}
                       </IconButton>
                     </InputAdornment>
                   ),

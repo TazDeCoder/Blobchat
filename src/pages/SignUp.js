@@ -1,14 +1,8 @@
-import { useState } from "react";
-
-import { useForm, Controller } from "react-hook-form";
+import { useContext, useState } from "react";
 
 import { Link as RouterLink } from "react-router-dom";
 
-import { doc, setDoc } from "firebase/firestore";
-
-import { createUserWithEmailAndPassword } from "firebase/auth";
-
-import { db, auth } from "../../../firebase";
+import { useForm, Controller } from "react-hook-form";
 
 import {
   Container,
@@ -22,9 +16,17 @@ import {
   Link,
 } from "@mui/material";
 
-import { AccountCircle, Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  AccountCircle as AccountCircleIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+} from "@mui/icons-material";
+
+import AuthContext from "../store/auth-context";
 
 function SignUp() {
+  const auth = useContext(AuthContext);
+
   const [showPassword, setShowPassword] = useState(false);
 
   const toggleShowPasswordHandler = () => {
@@ -46,22 +48,12 @@ function SignUp() {
   });
 
   const onSubmit = async ({ email, password, username }) => {
-    try {
-      const { user } = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      await setDoc(doc(db, "users", user.uid), {
-        username,
-        isOnline: true,
-      });
-    } catch (err) {
+    auth.onSignUp(email, password, username).catch(() => {
       setError("email", {
         type: "server",
         message: "Email already in use!",
       });
-    }
+    });
   };
 
   return (
@@ -75,7 +67,7 @@ function SignUp() {
         }}
       >
         <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-          <AccountCircle />
+          <AccountCircleIcon />
         </Avatar>
 
         <Typography component="h1" variant="h5">
@@ -164,7 +156,11 @@ function SignUp() {
                         onMouseDown={toggleShowPasswordHandler}
                         edge="end"
                       >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                        {showPassword ? (
+                          <VisibilityOffIcon />
+                        ) : (
+                          <VisibilityIcon />
+                        )}
                       </IconButton>
                     </InputAdornment>
                   ),
