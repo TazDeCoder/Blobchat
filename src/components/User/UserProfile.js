@@ -1,14 +1,9 @@
-import { doc } from "firebase/firestore";
-
-import { useDocumentData } from "react-firebase-hooks/firestore";
+import { useSelector } from "react-redux";
 
 import { Box, Typography } from "@mui/material";
 
-import { db, auth } from "../../firebase";
-
 function UserProfile() {
-  const userRef = doc(db, `users/${auth.currentUser.uid}`);
-  const [user] = useDocumentData(userRef);
+  const user = useSelector((state) => state.user.currentUser);
 
   return (
     <Box
@@ -19,14 +14,18 @@ function UserProfile() {
         height: "100vh",
       }}
     >
+      <Typography variant="h5" component="h1" align="center" p={1} my={1}>
+        User Profile
+      </Typography>
+
       {user && (
         <>
-          <Typography variant="h6" component="p" align="center" p={1} my={2}>
-            {user.username}
+          <Typography variant="body1" align="center" my={2}>
+            Username: {user.username}
           </Typography>
 
           <Typography variant="body1" align="center">
-            STATUS: {user.isOnline ? "ONLINE" : "OFFLINE"}
+            Email: {user.email}
           </Typography>
         </>
       )}
