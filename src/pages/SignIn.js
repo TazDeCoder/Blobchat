@@ -1,7 +1,6 @@
-import { useContext, useState } from "react";
-
-import { Link as RouterLink } from "react-router-dom";
-
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 
 import {
@@ -16,16 +15,23 @@ import {
   Link,
 } from "@mui/material";
 
-import {
-  LockOutlined as LockOutlinedIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-} from "@mui/icons-material";
+import { LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
 
-import AuthContext from "../store/auth-context";
+import { signInUser } from "../store/auth/auth-actions";
 
 function SignIn() {
-  const auth = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+
+  const error = useSelector((state) => state.auth.error);
+
+  if (error) {
+    setError("email", {
+      type: "server",
+      message: "Email doesn't exist!",
+    });
+  }
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -42,12 +48,8 @@ function SignIn() {
   });
 
   const onSubmit = ({ email, password }) => {
-    auth.onSignIn(email, password).catch(() => {
-      setError("email", {
-        type: "server",
-        message: "Email doesn't exist!",
-      });
-    });
+    dispatch(signInUser(email, password));
+    navigate("/home");
   };
 
   return (
@@ -61,7 +63,7 @@ function SignIn() {
         }}
       >
         <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-          <LockOutlinedIcon />
+          <LockOutlined />
         </Avatar>
 
         <Typography component="h1" variant="h5">
@@ -114,11 +116,7 @@ function SignIn() {
                         onMouseDown={toggleShowPasswordHandler}
                         edge="end"
                       >
-                        {showPassword ? (
-                          <VisibilityOffIcon />
-                        ) : (
-                          <VisibilityIcon />
-                        )}
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
                   ),
