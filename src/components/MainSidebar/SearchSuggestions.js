@@ -1,7 +1,13 @@
-import { Link as RouterLink } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-import { Box, Paper, Stack, Link } from "@mui/material";
+import { Box, Paper, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
+
+import { filterGroup } from "../../utils";
+
+import { groupActions } from "../../store/group/group-slice";
+import { createGroup } from "../../store/group/group-actions";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "light" ? "#fff" : "#1A2027",
@@ -17,20 +23,41 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 function SearchSuggestions(props) {
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+
+  const user = useSelector((state) => state.user.currentUser);
+  const group = useSelector((state) => state.group.currentGroup);
+
+  const suggestionClickHandler = async (recipientId) => {
+    const userArray = [recipientId, user.uid];
+    const [foundGroup] = await filterGroup(userArray);
+
+    if (!foundGroup) {
+      dispatch(createGroup(userArray, user.uid));
+    } else {
+      dispatch(
+        groupActions.replaceCurrentGroup({
+          ...foundGroup,
+          createdAt: foundGroup.createdAt.valueOf(),
+        })
+      );
+    }
+
+    navigate(`/home/chats/${group.id}`);
+    props.onClick();
+  };
+
   return (
     <Box sx={{ width: "100%", p: 1, bgcolor: "primary.dark" }}>
       <Stack spacing={2}>
         {props.suggestions.map((suggestion) => (
-          <Item key={suggestion.id}>
-            <Link
-              component={RouterLink}
-              to={`/home/chats/users/${suggestion.text}`}
-              color="inherit"
-              underline="none"
-              onClick={props.onClick}
-            >
-              {suggestion.text}
-            </Link>
+          <Item
+            key={suggestion.id}
+            onClick={suggestionClickHandler.bind(null, suggestion.id)}
+          >
+            {suggestion.text}
           </Item>
         ))}
       </Stack>

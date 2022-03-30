@@ -1,45 +1,33 @@
-import { useState } from "react";
-
-import {
-  collection,
-  doc,
-  setDoc,
-  query,
-  where,
-  orderBy,
-  limit,
-} from "firebase/firestore";
-
-import { useCollectionData } from "react-firebase-hooks/firestore";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import { Box } from "@mui/material";
 
-import { db, auth } from "../../firebase";
+import { signOutUser } from "../../store/auth/auth-actions";
+import { fetchUsers } from "../../store/user/user-actions";
 
 import SearchAppBar from "../UI/SearchAppBar";
 import SearchSuggestions from "./SearchSuggestions";
 
-function MainSidebar(props) {
+function MainSidebar() {
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+
+  const users = useSelector((state) => state.user.users);
+  const user = useSelector((state) => state.user.currentUser);
+
   const [enteredSearchTerm, setEnteredSearchTerm] = useState("");
   const [searchTerms, setSearchTerms] = useState([]);
 
-  const usersRef = collection(db, "users");
-  const usersQuery = query(
-    usersRef,
-    where("username", "!=", props.user.username),
-    orderBy("username"),
-    limit(10)
-  );
-  const [users] = useCollectionData(usersQuery);
+  useEffect(() => {
+    dispatch(fetchUsers());
+  }, [dispatch]);
 
-  const signOutHandler = () => {
-    setDoc(
-      doc(db, "users", auth.currentUser.uid),
-      {
-        isOnline: false,
-      },
-      { merge: true }
-    ).then(() => auth.signOut());
+  const logoutHandler = () => {
+    dispatch(signOutUser());
+    navigate("/auth");
   };
 
   const clearSuggestionsHandler = () => {
@@ -56,9 +44,10 @@ function MainSidebar(props) {
     }
 
     const filteredTerms = users
+      .filter((u) => u.uid !== user.uid)
       .map((user) => {
         return {
-          id: Math.random().toString(),
+          id: user.uid,
           text: user.username,
         };
       })
@@ -82,7 +71,7 @@ function MainSidebar(props) {
         onChange={searchTermChangedHandler}
         profileUrl={"/home/profile"}
         chatUrl={"/home/chats"}
-        onLogout={signOutHandler}
+        onLogout={logoutHandler}
       />
       {searchTerms.length > 0 && (
         <SearchSuggestions
