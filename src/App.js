@@ -1,44 +1,31 @@
-import { Route, Switch, Redirect } from "react-router-dom";
-
-import { useAuthState } from "react-firebase-hooks/auth";
+import { Route, Routes, Navigate } from "react-router-dom";
 
 import CssBaseline from "@mui/material/CssBaseline";
 
-import { auth } from "./firebase";
-
-import AuthLayout from "./layouts/AuthLayout/AuthLayout";
-import HomeLayout from "./layouts/HomeLayout/HomeLayout";
-
-let renderCount = 0;
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import Chats from "./pages/Chats";
+import Profile from "./pages/Profile";
 
 function App() {
-  renderCount++;
-  console.log(renderCount);
-
-  const [user] = useAuthState(auth);
-
   return (
     <>
       <CssBaseline />
-      <Switch>
-        <Route path="/" exact>
-          <Redirect to="/auth" />
-        </Route>
+      <Routes>
+        <Route path="/" element={<Navigate to="/auth" />} />
 
-        <Route path="/auth">
-          {user && <Redirect to="/home" />}
-          <AuthLayout />
-        </Route>
+        <Route path="/auth" element={<Navigate to="/auth/signin" />} />
 
-        <Route path="/home">
-          {!user && <Redirect to="/auth" />}
-          {user && <HomeLayout user={user} />}
-        </Route>
+        <Route path="/auth/signin" element={<SignIn />} />
+        <Route path="/auth/signup" element={<SignUp />} />
 
-        <Route path="*">
-          <h1>Not Found!</h1>
-        </Route>
-      </Switch>
+        <Route path="/home" element={<Navigate to="/home/chats" />} />
+
+        <Route path="/home/chats/*" element={<Chats />} />
+        <Route path="/home/profile" element={<Profile />} />
+
+        <Route path="*" element={<h1>Not Found!</h1>} />
+      </Routes>
     </>
   );
 }
