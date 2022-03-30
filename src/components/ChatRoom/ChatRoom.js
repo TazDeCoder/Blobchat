@@ -1,79 +1,64 @@
+import { useEffect, useState, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-
-import {
-  collection,
-  doc,
-  setDoc,
-  addDoc,
-  query,
-  where,
-  orderBy,
-  serverTimestamp,
-} from "firebase/firestore";
-
-import { useCollectionData } from "react-firebase-hooks/firestore";
 
 import { Box } from "@mui/material";
 
-import { db, auth } from "../../firebase";
+import { fetchUsersByGroup } from "../../utils";
+
+import {
+  fetchMessagesByGroupId,
+  saveMessage,
+} from "../../store/message/message-actions";
+
+import { fetchGroupById } from "../../store/group/group-actions";
 
 import ChatHeader from "./ChatHeader";
 import ChatContainer from "./ChatContainer";
 import ChatForm from "./ChatForm";
 
-function ChatRoom(props) {
+function ChatRoom() {
   const params = useParams();
 
-  const roomName = `chat_${
-    props.user.username < params.username
-      ? `${props.user.username}_${params.username}`
-      : `${params.username}_${props.user.username}`
-  }`;
+  const chatRef = useRef();
 
-  const usersRef = collection(db, "users");
-  const usersQuery = query(usersRef, where("username", "==", params.username));
-  const [recipient] = useCollectionData(usersQuery);
+  const dispatch = useDispatch();
 
-  const messagesRef = collection(
-    db,
-    `rooms/users/${props.user.username}/${roomName}/messages`
-  );
-  const messagesQuery = query(messagesRef, orderBy("createdAt"));
-  const [messages, isMessagesLoading] = useCollectionData(messagesQuery, {
-    idField: "id",
-  });
+  const user = useSelector((state) => state.user.currentUser);
+  const group = useSelector((state) => state.group.currentGroup);
+  const messages = useSelector((state) => state.message.messages);
 
-  const sendMessageHandler = async (newMessage) => {
-    if (messages.length === 0) {
-      const chatsRef = doc(db, `rooms/users/${props.user.username}`, roomName);
-      await setDoc(chatsRef, {
-        isActive: true,
-      });
+  const [recipient, setRecipient] = useState({});
 
-      const chatsRef2 = doc(db, `rooms/users/${params.username}`, roomName);
-      await setDoc(chatsRef2, {
-        name: params.username,
-        isActive: true,
+  useEffect(() => {
+    dispatch(fetchMessagesByGroupId(params.groupId));
+    dispatch(fetchGroupById(params.groupId));
+  }, [dispatch]);
+
+  useEffect(async () => {
+    if (group && user) {
+      const fetchedRecipients = await fetchUsersByGroup(group);
+      const filteredRecipients = fetchedRecipients.filter(
+        (recipient) => recipient.uid !== user.uid
+      );
+      setRecipient(...filteredRecipients);
+    }
+  }, [group, user, fetchUsersByGroup]);
+
+  const sendMessageHandler = (msgText) => {
+    if (!msgText.trim()) return;
+
+    dispatch(saveMessage(msgText, params.groupId, user.uid));
+  };
+
+  useEffect(() => {
+    if (messages) {
+      chatRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
       });
     }
-
-    await addDoc(messagesRef, {
-      text: newMessage.text,
-      createdAt: serverTimestamp(),
-      uid: auth.currentUser.uid,
-    });
-
-    const messagesRef2 = collection(
-      db,
-      `rooms/users/${params.username}/${roomName}/messages`
-    );
-
-    await addDoc(messagesRef2, {
-      text: newMessage.text,
-      createdAt: serverTimestamp(),
-      uid: auth.currentUser.uid,
-    });
-  };
+  }, [messages]);
 
   return (
     <Box
@@ -86,8 +71,8 @@ function ChatRoom(props) {
         },
       }}
     >
-      {recipient && <ChatHeader receiver={recipient[0]} />}
-      <ChatContainer loading={isMessagesLoading} messages={messages} />
+      {Object.keys(recipient).length > 0 && <ChatHeader receiver={recipient} />}
+      <ChatContainer ref={chatRef} loading={false} messages={messages} />
       <ChatForm onSendMessage={sendMessageHandler} />
     </Box>
   );

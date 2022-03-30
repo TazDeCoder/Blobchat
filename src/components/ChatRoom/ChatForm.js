@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { Box, TextField, Button } from "@mui/material";
+
 import SendIcon from "@mui/icons-material/Send";
 
 function ChatForm(props) {
@@ -12,12 +13,7 @@ function ChatForm(props) {
 
   const sendHandler = (e) => {
     e.preventDefault();
-    // Create message data object
-    const messageData = {
-      id: Math.random().toString(),
-      text: enteredMessage,
-      isUser: true,
-    };
+    const messageData = enteredMessage;
     // Handle message data
     props.onSendMessage(messageData);
     // Clear input field

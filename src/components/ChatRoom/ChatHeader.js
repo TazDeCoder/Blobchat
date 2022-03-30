@@ -1,8 +1,8 @@
 import { Box, Avatar, Typography } from "@mui/material";
 
-import StyledBadge from "../UI/StyledBadge";
+import { stringAvatar } from "../../utils";
 
-import { stringAvatar } from "../../helpers";
+import StyledBadge from "../UI/StyledBadge";
 
 function ChatHeader(props) {
   return (

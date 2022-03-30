@@ -1,12 +1,13 @@
+import React from "react";
+
 import { Box, Paper, Typography } from "@mui/material";
 
 import { auth } from "../../firebase";
 
+import StyledCircularProgress from "../UI/StyledCircularProgress";
 import ChatMessage from "./ChatMessage";
 
-import StyledCircularProgress from "../UI/StyledCircularProgress";
-
-function ChatContainer(props) {
+const ChatContainer = React.forwardRef((props, ref) => {
   return (
     <Box
       sx={{
@@ -19,10 +20,10 @@ function ChatContainer(props) {
       }}
     >
       {props.loading && <StyledCircularProgress />}
-      {!props.loading && props.messages.length === 0 && (
+      {!props.loading && (
         <Paper sx={{ alignSelf: "center" }}>
           <Typography variant="body1" p={1}>
-            This is the beginning of the conversation
+            This is the beginning of the chat.
           </Typography>
         </Paper>
       )}
@@ -32,7 +33,7 @@ function ChatContainer(props) {
           return (
             <ChatMessage
               key={message?.id ?? Math.random().toString()}
-              isSender={message.uid === auth.currentUser.uid}
+              isSender={message.senderId === auth.currentUser.uid}
             >
               <Typography
                 sx={{ color: "primary.contrastText" }}
@@ -43,8 +44,9 @@ function ChatContainer(props) {
             </ChatMessage>
           );
         })}
+      <span ref={ref}></span>
     </Box>
   );
-}
+});
 
 export default ChatContainer;
