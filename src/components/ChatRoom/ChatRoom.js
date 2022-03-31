@@ -1,23 +1,22 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
 import { Box } from "@mui/material";
 
-import { fetchUsersByGroup } from "../../utils";
+import { fetchUsersByGroup, saveMessage } from "../../utils";
 
-import {
-  fetchMessagesByGroupId,
-  saveMessage,
-} from "../../store/message/message-actions";
+import { fetchMessagesByGroupId } from "../../store/message/message-actions";
 
 import { fetchGroupById } from "../../store/group/group-actions";
+
+import StyledCircularProgress from "../UI/StyledCircularProgress";
 
 import ChatHeader from "./ChatHeader";
 import ChatContainer from "./ChatContainer";
 import ChatForm from "./ChatForm";
 
-function ChatRoom() {
+function ChatRoom(props) {
   const params = useParams();
 
   const chatRef = useRef();
@@ -30,39 +29,42 @@ function ChatRoom() {
 
   const [recipient, setRecipient] = useState({});
 
+  const isLoading =
+    Object.keys(recipient).length === 0 || messages.length === 0;
+
   useEffect(() => {
-    dispatch(fetchMessagesByGroupId(params.groupId));
+    dispatch(fetchMessagesByGroupId(params.groupId, props.addSubscription));
     dispatch(fetchGroupById(params.groupId));
-  }, [dispatch]);
+  }, [dispatch, params.groupId]);
 
-  useEffect(async () => {
-    if (group && user) {
-      const fetchedRecipients = await fetchUsersByGroup(group);
-      const filteredRecipients = fetchedRecipients.filter(
-        (recipient) => recipient.uid !== user.uid
-      );
-      setRecipient(...filteredRecipients);
-    }
-  }, [group, user, fetchUsersByGroup]);
+  const fetchRecipients = useCallback(async () => {
+    if (!group || !user) return;
+    const fetchedRecipients = await fetchUsersByGroup(group);
+    const filteredRecipients = fetchedRecipients.filter(
+      (recipient) => recipient.uid !== user.uid
+    );
+    setRecipient(...filteredRecipients);
+  }, [group, user]);
 
-  const sendMessageHandler = (msgText) => {
+  useEffect(() => {
+    fetchRecipients();
+  }, [fetchRecipients]);
+
+  const sendMessageHandler = async (msgText) => {
     if (!msgText.trim()) return;
 
-    dispatch(saveMessage(msgText, params.groupId, user.uid));
-  };
+    await saveMessage(msgText, params.groupId, user.uid);
 
-  useEffect(() => {
-    if (messages) {
-      chatRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "end",
-      });
-    }
-  }, [messages]);
+    chatRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
+  };
 
   return (
     <Box
       sx={{
+        position: "relative",
         display: "flex",
         flexDirection: "column",
         alignItems: "stretch",
@@ -71,9 +73,14 @@ function ChatRoom() {
         },
       }}
     >
-      {Object.keys(recipient).length > 0 && <ChatHeader receiver={recipient} />}
-      <ChatContainer ref={chatRef} loading={false} messages={messages} />
-      <ChatForm onSendMessage={sendMessageHandler} />
+      {isLoading && <StyledCircularProgress />}
+      {!isLoading && (
+        <>
+          <ChatHeader receiver={recipient} />
+          <ChatContainer ref={chatRef} messages={messages} />
+          <ChatForm onSendMessage={sendMessageHandler} />
+        </>
+      )}
     </Box>
   );
 }

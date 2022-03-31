@@ -27,15 +27,19 @@ function ChatForm(props) {
           display: "flex",
           flexWrap: "wrap",
           justifyContent: "flex-end",
-          p: 2,
+          bgcolor: "primary.light",
         }}
+        p={2}
       >
         <TextField
           sx={{
             width: "90%",
             maxHeight: "6rem",
             overflow: "auto",
+            borderRadius: "5px",
+            bgcolor: "#fff",
           }}
+          color={"primary"}
           value={enteredMessage}
           multiline
           onChange={messageChangedHandler}

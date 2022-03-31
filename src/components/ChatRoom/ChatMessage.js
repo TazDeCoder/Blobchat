@@ -7,7 +7,7 @@ const ChatMessage = styled(Paper, {
   maxWidth: "45rem",
   width: "60%",
   margin: "0.5rem",
-  padding: "1rem",
+  padding: "0.5rem",
   overflowWrap: "break-word",
   backgroundColor: `${theme.palette.primary.light}`,
   borderRadius: "7px",

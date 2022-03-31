@@ -12,7 +12,7 @@ function ChatHeader(props) {
         alignItems: "center",
         justifyContent: "space-between",
         p: "0.5rem 1rem",
-        bgcolor: "primary.main",
+        bgcolor: "primary.light",
       }}
       component="header"
     >
