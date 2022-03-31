@@ -10,7 +10,7 @@ import { fetchUsers } from "../../store/user/user-actions";
 import SearchAppBar from "../UI/SearchAppBar";
 import SearchSuggestions from "./SearchSuggestions";
 
-function MainSidebar() {
+function MainSidebar(props) {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
@@ -28,6 +28,7 @@ function MainSidebar() {
   const logoutHandler = () => {
     dispatch(signOutUser());
     navigate("/auth");
+    props.removeSubscriptions();
   };
 
   const clearSuggestionsHandler = () => {
@@ -71,6 +72,7 @@ function MainSidebar() {
         onChange={searchTermChangedHandler}
         profileUrl={"/home/profile"}
         chatUrl={"/home/chats"}
+        logoutUrl={"/auth"}
         onLogout={logoutHandler}
       />
       {searchTerms.length > 0 && (
