@@ -23,8 +23,8 @@ const authSlice = createSlice({
     signInError(state, action) {
       state.error = action.payload;
     },
-    signOutSuccess(state) {
-      state = initialState;
+    signOutSuccess() {
+      return initialState;
     },
   },
 });

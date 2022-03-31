@@ -1,7 +1,6 @@
 import {
   collection,
   doc,
-  getDocs,
   getDoc,
   setDoc,
   addDoc,
@@ -9,6 +8,7 @@ import {
   where,
   serverTimestamp,
 } from "firebase/firestore";
+import { collectionData } from "rxfire/firestore";
 
 import { db } from "../../firebase";
 
@@ -40,26 +40,29 @@ export const createGroup = (userArray, createdBy, name = null, type = 1) => {
 
     const updatedGroupData = {
       ...updatedGroupSnap.data(),
-      createdAt: updatedGroupSnap.data().createdAt.valueOf(),
+      createdAt: updatedGroupSnap.data().createdAt.toMillis(),
     };
 
     dispatch(groupActions.replaceCurrentGroup(updatedGroupData));
   };
 };
 
-export const fetchGroupByUserId = (uid) => {
+export const fetchGroupByUserId = (uid, handleSubscription) => {
   return async (dispatch) => {
     const groupRef = collection(db, "group");
     const groupQuery = query(groupRef, where("members", "array-contains", uid));
-    const groupSnap = await getDocs(groupQuery);
-    const groupData = groupSnap.docs.map((groupSnap) => {
-      return {
-        ...groupSnap.data(),
-        createdAt: groupSnap.data().createdAt.valueOf(),
-      };
+    const group$ = collectionData(groupQuery).subscribe((groupsData) => {
+      const transformedGroupsData = groupsData.map((groupData) => {
+        return {
+          ...groupData,
+          createdAt: groupData.createdAt.toMillis(),
+        };
+      });
+
+      dispatch(groupActions.replaceGroups(transformedGroupsData));
     });
 
-    dispatch(groupActions.replaceGroups(groupData));
+    handleSubscription(group$);
   };
 };
 
@@ -69,7 +72,7 @@ export const fetchGroupById = (groupId) => {
     const groupSnap = await getDoc(groupRef);
     const groupData = {
       ...groupSnap.data(),
-      createdAt: groupSnap.data().createdAt.valueOf(),
+      createdAt: groupSnap.data().createdAt.toMillis(),
     };
 
     dispatch(groupActions.replaceCurrentGroup(groupData));

@@ -1,4 +1,5 @@
-import { collection, getDocs, getDoc, doc, query } from "firebase/firestore";
+import { collection, getDocs, doc, query } from "firebase/firestore";
+import { docData } from "rxfire/firestore";
 
 import { db } from "../../firebase";
 
@@ -15,12 +16,14 @@ export const fetchUsers = () => {
   };
 };
 
-export const getUserFromFirestore = (uid) => {
+export const getUserFromFirestore = (uid, handleSubscription) => {
   return async (dispatch) => {
     const userRef = doc(db, "users", uid);
-    const userSnap = await getDoc(userRef);
-    const userData = userSnap.data();
 
-    dispatch(userActions.replaceCurrentUser(userData));
+    const user$ = docData(userRef).subscribe((userData) => {
+      dispatch(userActions.replaceCurrentUser(userData));
+    });
+
+    handleSubscription(user$);
   };
 };

@@ -10,12 +10,13 @@ import { db, auth } from "../../firebase";
 import { authActions } from "./auth-slice";
 import { getUserFromFirestore } from "../user/user-actions";
 
-export const initAuth = () => {
+export const initAuth = (handleSubscription) => {
   return (dispatch) => {
-    const unsubscribe = auth.onAuthStateChanged((authUser) => {
+    const unsub = auth.onAuthStateChanged((authUser) => {
+      if (!authUser) return;
       dispatch(authActions.initAuth(authUser.uid));
-      dispatch(getUserFromFirestore(authUser.uid));
-      unsubscribe();
+      dispatch(getUserFromFirestore(authUser.uid, handleSubscription));
+      unsub();
     });
   };
 };
@@ -34,8 +35,7 @@ export const signInUser = (email, password) => {
 
       dispatch(authActions.signInSuccess(user.uid));
     } catch (err) {
-      console.log(err.message);
-      dispatch(authActions.signInError(err));
+      dispatch(authActions.signInError(err.code));
     }
   };
 };
@@ -58,7 +58,7 @@ export const signUpUser = (email, password, username) => {
 
       dispatch(authActions.signInSuccess(user.uid));
     } catch (err) {
-      throw err;
+      dispatch(authActions.signInError(err.code));
     }
   };
 };
