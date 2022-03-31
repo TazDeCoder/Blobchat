@@ -1,6 +1,10 @@
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { Route, Routes, Navigate } from "react-router-dom";
 
 import CssBaseline from "@mui/material/CssBaseline";
+
+import { initAuth } from "./store/auth/auth-actions";
 
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -8,6 +12,12 @@ import Chats from "./pages/Chats";
 import Profile from "./pages/Profile";
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(initAuth());
+  }, [dispatch]);
+
   return (
     <>
       <CssBaseline />

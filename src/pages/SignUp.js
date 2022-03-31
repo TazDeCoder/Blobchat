@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
@@ -25,19 +25,9 @@ function SignUp() {
   const dispatch = useDispatch();
 
   const error = useSelector((state) => state.auth.error);
-
-  if (error) {
-    setError("email", {
-      type: "server",
-      message: "Email already in use!",
-    });
-  }
+  const authenticated = useSelector((state) => state.auth.authenticated);
 
   const [showPassword, setShowPassword] = useState(false);
-
-  const toggleShowPasswordHandler = () => {
-    setShowPassword((prevShowPassword) => !prevShowPassword);
-  };
 
   const {
     control,
@@ -53,9 +43,32 @@ function SignUp() {
     },
   });
 
+  useEffect(() => {
+    if (error) {
+      const [type, code] = error.split("/");
+      switch (code) {
+        case "email-already-in-use": {
+          return setError("email", {
+            type,
+            message: "Use a different email. That one has already been in use",
+          });
+        }
+        default: {
+          return;
+        }
+      }
+    }
+  }, [error, setError]);
+
+  const toggleShowPasswordHandler = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
   const onSubmit = async ({ email, password, username }) => {
     dispatch(signUpUser(email, password, username));
-    navigate("/home");
+    setTimeout(() => {
+      if (authenticated) navigate("/home");
+    }, 1000);
   };
 
   return (
@@ -80,7 +93,10 @@ function SignUp() {
           <Controller
             name="username"
             control={control}
-            render={({ field, fieldState: { isTouched, invalid, error } }) => (
+            render={({
+              field,
+              fieldState: { isTouched, isDirty, invalid, error },
+            }) => (
               <TextField
                 id="username"
                 label="Username"
@@ -90,8 +106,10 @@ function SignUp() {
                 required
                 autoFocus
                 {...field}
-                error={isTouched && invalid}
-                helperText={isTouched && error?.message}
+                error={(isTouched || isDirty) && invalid}
+                helperText={
+                  (isTouched && error?.message) || (isDirty && error?.message)
+                }
                 onBlur={async () => await trigger(["username"])}
               />
             )}
@@ -110,7 +128,10 @@ function SignUp() {
           <Controller
             name="email"
             control={control}
-            render={({ field, fieldState: { isTouched, invalid, error } }) => (
+            render={({
+              field,
+              fieldState: { isTouched, isDirty, invalid, error },
+            }) => (
               <TextField
                 id="email"
                 label="Email Address"
@@ -119,8 +140,10 @@ function SignUp() {
                 fullWidth
                 required
                 {...field}
-                error={isTouched && invalid}
-                helperText={isTouched && error?.message}
+                error={(isTouched || isDirty) && invalid}
+                helperText={
+                  (isTouched && error?.message) || (isDirty && error?.message)
+                }
                 onBlur={async () => await trigger(["email"])}
               />
             )}
@@ -140,7 +163,10 @@ function SignUp() {
           <Controller
             name="password"
             control={control}
-            render={({ field, fieldState: { isTouched, invalid, error } }) => (
+            render={({
+              field,
+              fieldState: { isTouched, isDirty, invalid, error },
+            }) => (
               <TextField
                 id="password"
                 label="Password"
@@ -164,8 +190,10 @@ function SignUp() {
                   ),
                 }}
                 {...field}
-                error={isTouched && invalid}
-                helperText={isTouched && error?.message}
+                error={(isTouched || isDirty) && invalid}
+                helperText={
+                  (isTouched && error?.message) || (isDirty && error?.message)
+                }
                 onBlur={async () => await trigger(["password"])}
               />
             )}

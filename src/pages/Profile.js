@@ -1,9 +1,6 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import { Grid } from "@mui/material";
-
-import { initAuth } from "../store/auth/auth-actions";
 
 import StyledCircularProgress from "../components/UI/StyledCircularProgress";
 
@@ -12,15 +9,9 @@ import MainSidebar from "../components/MainSidebar/MainSidebar";
 import UserProfile from "../components/User/UserProfile";
 
 function Profile() {
-  const dispatch = useDispatch();
-
   const authenticated = useSelector((state) => state.auth.authenticated);
 
   const isLoading = !authenticated;
-
-  useEffect(() => {
-    dispatch(initAuth());
-  }, [dispatch]);
 
   return (
     <Grid

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
@@ -25,31 +25,55 @@ function SignIn() {
   const dispatch = useDispatch();
 
   const error = useSelector((state) => state.auth.error);
-
-  if (error) {
-    setError("email", {
-      type: "server",
-      message: "Email doesn't exist!",
-    });
-  }
+  const authenticated = useSelector((state) => state.auth.authenticated);
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const toggleShowPasswordHandler = () => {
-    setShowPassword((prevShowPassword) => !prevShowPassword);
-  };
-
-  const { control, setError, handleSubmit } = useForm({
+  const {
+    control,
+    setError,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
-      username: "",
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = ({ email, password }) => {
+  useEffect(() => {
+    if (error) {
+      const [type, code] = error.split("/");
+      switch (code) {
+        case "user-not-found": {
+          return setError("email", {
+            type,
+            message: "Email doesn't exist!",
+          });
+        }
+        case "wrong-password": {
+          return setError("password", {
+            type,
+            message: "Password is incorrect!",
+          });
+        }
+        default: {
+          return;
+        }
+      }
+    }
+  }, [error, setError]);
+
+  const toggleShowPasswordHandler = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
+  const onSubmit = async ({ email, password }) => {
+    if (Object.keys(errors).length > 0) return;
     dispatch(signInUser(email, password));
-    navigate("/home");
+    setTimeout(() => {
+      if (authenticated) navigate("/home");
+    }, 1000);
   };
 
   return (
@@ -93,6 +117,17 @@ function SignIn() {
                 helperText={error?.message}
               />
             )}
+            rules={{
+              required: {
+                value: true,
+                message: "Email must not be empty",
+              },
+              pattern: {
+                value:
+                  /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i,
+                message: "Email must be valid",
+              },
+            }}
           />
 
           <Controller
@@ -126,6 +161,12 @@ function SignIn() {
                 helperText={error?.message}
               />
             )}
+            rules={{
+              required: {
+                value: true,
+                message: "Password must not be empty",
+              },
+            }}
           />
 
           <Button
