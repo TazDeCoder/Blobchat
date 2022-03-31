@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -19,19 +19,21 @@ function ChatBox(props) {
 
   const user = useSelector((state) => state.user.currentUser);
 
-  useEffect(async () => {
-    if (user) {
-      const fetchedRecipients = await fetchUsersByGroup(props.group);
-      const filteredRecipients = fetchedRecipients.filter(
-        (recipient) => recipient.uid !== user.uid
-      );
-      setRecipient(...filteredRecipients);
-    }
-  }, [props.group, user, fetchUsersByGroup]);
+  const fetchRecipients = useCallback(async () => {
+    if (!user);
+    const fetchedRecipients = await fetchUsersByGroup(props.group);
+    const filteredRecipients = fetchedRecipients.filter(
+      (recipient) => recipient.uid !== user.uid
+    );
+    setRecipient(...filteredRecipients);
+  }, [props.group, user]);
+
+  useEffect(() => {
+    fetchRecipients();
+  }, [fetchRecipients]);
 
   const chatClickedHandler = () => {
     dispatch(fetchGroupById(props.group.id));
-
     navigate(`/home/chats/${props.group.id}`);
   };
 
@@ -40,6 +42,7 @@ function ChatBox(props) {
       sx={{
         display: "flex",
         alignItems: "center",
+        bgcolor: "#fff",
         border: "1px solid",
         borderColor: "primary.light",
         borderRadius: "9px",
