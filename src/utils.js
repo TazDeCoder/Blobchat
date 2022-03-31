@@ -3,9 +3,11 @@ import {
   doc,
   getDocs,
   getDoc,
+  addDoc,
   setDoc,
   query,
   where,
+  serverTimestamp,
 } from "firebase/firestore";
 
 import stc from "string-to-color";
@@ -66,4 +68,23 @@ export async function filterGroup(userArray, type = 1) {
   const groupsData = groupsSnap.docs.map((groupSnap) => groupSnap.data());
 
   return groupsData;
+}
+
+export async function saveMessage(messageText, currentGroupId, sentBy) {
+  const message = {
+    text: messageText,
+    sentAt: serverTimestamp(),
+    senderId: sentBy,
+  };
+  const messagesRef = collection(db, "message", currentGroupId, "messages");
+  const messageRef = await addDoc(messagesRef, message);
+  const messageSnap = await getDoc(messageRef);
+  const messageData = {
+    ...messageSnap.data(),
+    sentAt: messageSnap.data().sentAt.toMillis(),
+  };
+
+  updateGroup(currentGroupId, {
+    recentMessage: messageData,
+  });
 }
