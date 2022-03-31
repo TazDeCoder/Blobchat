@@ -86,7 +86,7 @@ function SearchAppBar(props) {
       }}
     >
       <AppBar position="static">
-        <Toolbar>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
           <Search>
             <SearchIconWrapper>
               <SearchIcon />
@@ -159,7 +159,11 @@ function SearchAppBar(props) {
               Chats
             </MenuItem>
 
-            <MenuItem onClick={props.onLogout}>
+            <MenuItem
+              component={RouterLink}
+              to={props.logoutUrl}
+              onClick={props.onLogout}
+            >
               <ListItemIcon>
                 <LogoutIcon fontSize="small" />
               </ListItemIcon>
