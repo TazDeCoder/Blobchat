@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, Routes, Navigate } from "react-router-dom";
 
@@ -9,19 +9,28 @@ import useSubscriptions from "./hooks/use-subscriptions";
 
 import { initAuth } from "./store/auth/auth-actions";
 
+import Fallback from "./pages/Fallback";
 import SignIn from "./pages/SignIn";
-import SignUp from "./pages/SignUp";
-import Chats from "./pages/Chats";
-import Profile from "./pages/Profile";
+
+const SignUp = React.lazy(() => import("./pages/SignUp"));
+const Chats = React.lazy(() => import("./pages/Chats"));
+const Profile = React.lazy(() => import("./pages/Profile"));
+const NotFound = React.lazy(() => import("./pages/NotFound"));
 
 const theme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#3f51b5",
+      main: "#3b3b98",
+      light: "#6262ac",
+      dark: "#29296a",
+      contrastText: "#fff",
     },
     secondary: {
-      main: "#f50057",
+      main: "#fc427b",
+      light: "#fc6795",
+      dark: "#b02e56",
+      contrastText: "#000",
     },
     text: {
       disabled: "#d5d5d5",
@@ -45,29 +54,37 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Routes>
-        <Route path="/" element={<Navigate to={entryPath} />} />
+      <Suspense fallback={<Fallback />}>
+        <Routes>
+          <Route path="/" element={<Navigate to={entryPath} />} />
 
-        <Route path="/auth" element={<Navigate to="/auth/signin" />} />
+          <Route path="/auth" element={<Navigate to="/auth/signin" />} />
 
-        <Route path="/auth/signin" element={<SignIn />} />
-        <Route path="/auth/signup" element={<SignUp />} />
+          <Route
+            path="/auth/signin"
+            element={<SignIn addSubscription={addSubscription} />}
+          />
+          <Route
+            path="/auth/signup"
+            element={<SignUp addSubscription={addSubscription} />}
+          />
 
-        <Route path="/home" element={<Navigate to="/home/chats" />} />
+          <Route path="/home" element={<Navigate to="/home/chats" />} />
 
-        <Route
-          path="/home/chats/*"
-          element={
-            <Chats
-              addSubscription={addSubscription}
-              removeSubscriptions={removeSubscriptions}
-            />
-          }
-        />
-        <Route path="/home/profile" element={<Profile />} />
+          <Route
+            path="/home/chats/*"
+            element={
+              <Chats
+                addSubscription={addSubscription}
+                removeSubscriptions={removeSubscriptions}
+              />
+            }
+          />
+          <Route path="/home/profile" element={<Profile />} />
 
-        <Route path="*" element={<h1>Not Found!</h1>} />
-      </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </ThemeProvider>
   );
 }
