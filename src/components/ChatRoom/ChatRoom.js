@@ -68,6 +68,7 @@ function ChatRoom(props) {
         flexDirection: "column",
         alignItems: "stretch",
         height: {
+          xs: "85vh",
           sm: "100vh",
         },
       }}

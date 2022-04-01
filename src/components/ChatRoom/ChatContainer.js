@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 import { Box, Paper, Typography } from "@mui/material";
 
-import { format } from "date-fns";
+import { format, isToday } from "date-fns";
 
 import ChatMessage from "./ChatMessage";
 
@@ -23,30 +23,43 @@ const ChatContainer = React.forwardRef((props, ref) => {
         bgcolor: "primary.main",
       }}
     >
-      <Paper sx={{ alignSelf: "center" }}>
+      <Paper sx={{ alignSelf: "center", mb: "1rem" }}>
         <Typography variant="body1" p={1}>
           This is the beginning of the chat.
         </Typography>
       </Paper>
       {props.messages.length > 0 &&
         props.messages.map((message) => {
-          const localisedTime =
-            message.sentAt !== null
-              ? format(new Date(message.sentAt), "p")
-              : "";
+          if (message.sentAt === null) return;
+          const [localisedDate, localisedTime] = format(
+            new Date(message.sentAt),
+            "Pp"
+          ).split(",");
+
+          const includeDate = !isToday(new Date(message.sentAt));
 
           return (
             <ChatMessage
               key={Math.random().toString()}
               isSender={message.senderId === userId}
             >
+              {includeDate && localisedDate && (
+                <Typography
+                  sx={{
+                    color: "text.disabled",
+                    textAlign: `${
+                      message.senderId === userId ? "right" : "left"
+                    }`,
+                  }}
+                  mt={1}
+                  variant="body2"
+                >
+                  {localisedDate}
+                </Typography>
+              )}
               <Typography
                 sx={{
-                  color: `${
-                    message.senderId === userId
-                      ? "secondary.contrastText"
-                      : "primary.contrastText"
-                  }`,
+                  color: "#fff",
                 }}
                 variant="body1"
               >

@@ -11,9 +11,10 @@ function ChatHeader(props) {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        p: "0.5rem 1rem",
         bgcolor: "primary.light",
       }}
+      py={1}
+      px={2}
       component="header"
     >
       <StyledBadge

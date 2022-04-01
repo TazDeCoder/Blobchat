@@ -33,13 +33,14 @@ function ChatForm(props) {
       >
         <TextField
           sx={{
+            maxWidth: "30rem",
             width: "90%",
             maxHeight: "6rem",
             overflow: "auto",
             borderRadius: "5px",
             bgcolor: "#fff",
           }}
-          color={"primary"}
+          color="primary"
           value={enteredMessage}
           multiline
           onChange={messageChangedHandler}
