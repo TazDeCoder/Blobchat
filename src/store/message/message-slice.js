@@ -14,6 +14,9 @@ const messageSlice = createSlice({
     addNewMessage(state, action) {
       state.messages.push(action.payload);
     },
+    reset() {
+      return initialState;
+    },
   },
 });
 

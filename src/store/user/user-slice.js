@@ -15,6 +15,9 @@ const userSlice = createSlice({
     replaceUsers(state, action) {
       state.users = action.payload;
     },
+    reset() {
+      return initialState;
+    },
   },
 });
 

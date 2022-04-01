@@ -15,6 +15,9 @@ const groupSlice = createSlice({
     replaceCurrentGroup(state, action) {
       state.currentGroup = action.payload;
     },
+    reset() {
+      return initialState;
+    },
   },
 });
 

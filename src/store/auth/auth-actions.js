@@ -7,8 +7,13 @@ import { doc, setDoc } from "firebase/firestore";
 
 import { db, auth } from "../../firebase";
 
-import { authActions } from "./auth-slice";
 import { getUserFromFirestore } from "../user/user-actions";
+
+import { authActions } from "./auth-slice";
+
+import { groupActions } from "../group/group-slice";
+import { userActions } from "../user/user-slice";
+import { messageActions } from "../message/message-slice";
 
 export const initAuth = (handleSubscription) => {
   return (dispatch) => {
@@ -21,7 +26,7 @@ export const initAuth = (handleSubscription) => {
   };
 };
 
-export const signInUser = (email, password) => {
+export const signInUser = (email, password, handleSubscription) => {
   return async (dispatch) => {
     try {
       const { user } = await signInWithEmailAndPassword(auth, email, password);
@@ -34,13 +39,14 @@ export const signInUser = (email, password) => {
       );
 
       dispatch(authActions.signInSuccess(user.uid));
+      dispatch(getUserFromFirestore(user.uid, handleSubscription));
     } catch (err) {
       dispatch(authActions.signInError(err.code));
     }
   };
 };
 
-export const signUpUser = (email, password, username) => {
+export const signUpUser = (email, password, username, handleSubscription) => {
   return async (dispatch) => {
     try {
       const { user } = await createUserWithEmailAndPassword(
@@ -56,6 +62,7 @@ export const signUpUser = (email, password, username) => {
       });
 
       dispatch(authActions.signInSuccess(user.uid));
+      dispatch(getUserFromFirestore(user.uid, handleSubscription));
     } catch (err) {
       dispatch(authActions.signInError(err.code));
     }
@@ -74,5 +81,8 @@ export const signOutUser = () => {
     await auth.signOut();
 
     dispatch(authActions.signOutSuccess());
+    dispatch(groupActions.reset());
+    dispatch(userActions.reset());
+    dispatch(messageActions.reset());
   };
 };

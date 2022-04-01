@@ -51,11 +51,15 @@ export const fetchGroupByUserId = (uid, handleSubscription) => {
   return async (dispatch) => {
     const groupRef = collection(db, "group");
     const groupQuery = query(groupRef, where("members", "array-contains", uid));
+
     const group$ = collectionData(groupQuery).subscribe((groupsData) => {
       const transformedGroupsData = groupsData.map((groupData) => {
         return {
           ...groupData,
-          createdAt: groupData.createdAt.toMillis(),
+          createdAt:
+            groupData.createdAt !== null
+              ? groupData.createdAt.toMillis()
+              : null,
         };
       });
 
