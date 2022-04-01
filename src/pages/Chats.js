@@ -3,6 +3,8 @@ import { Route, Routes } from "react-router-dom";
 
 import { Grid } from "@mui/material";
 
+import StyledCircularProgress from "../components/UI/StyledCircularProgress";
+
 import Blank from "../components/Blank/Blank";
 import MainSidebar from "../components/MainSidebar/MainSidebar";
 import RecentChats from "../components/RecentChats/RecentChats";
@@ -10,6 +12,8 @@ import ChatRoom from "../components/ChatRoom/ChatRoom";
 
 function Chats(props) {
   const authenticated = useSelector((state) => state.auth.authenticated);
+
+  const isLoading = !authenticated;
 
   return (
     <Grid
@@ -30,7 +34,8 @@ function Chats(props) {
       spacing={{ xs: 2, md: 3 }}
     >
       <Grid sx={{ position: "relative" }} item xs="auto" sm={6} md={4}>
-        {authenticated && (
+        {isLoading && <StyledCircularProgress />}
+        {!isLoading && (
           <>
             <MainSidebar removeSubscriptions={props.removeSubscriptions} />
             <RecentChats addSubscription={props.addSubscription} />

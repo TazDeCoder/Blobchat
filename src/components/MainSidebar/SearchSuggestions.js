@@ -18,7 +18,8 @@ const Item = styled(Paper)(({ theme }) => ({
   cursor: "pointer",
 
   "&:hover": {
-    backgroundColor: theme.palette.mode === "light" ? "#ccc" : "#484d52",
+    backgroundColor:
+      theme.palette.mode === "light" ? theme.palette.text.disabled : "#484d52",
   },
 }));
 
@@ -34,8 +35,11 @@ function SearchSuggestions(props) {
     const userArray = [recipientId, user.uid];
     const [foundGroup] = await filterGroup(userArray);
 
+    props.onClick();
+
     if (!foundGroup) {
       dispatch(createGroup(userArray, user.uid));
+      navigate(`/home/chats/${group.id}`);
     } else {
       dispatch(
         groupActions.replaceCurrentGroup({
@@ -43,10 +47,9 @@ function SearchSuggestions(props) {
           createdAt: foundGroup.createdAt.valueOf(),
         })
       );
+      debugger;
+      navigate(`/home/chats/${foundGroup.id}`);
     }
-
-    navigate(`/home/chats/${group.id}`);
-    props.onClick();
   };
 
   return (

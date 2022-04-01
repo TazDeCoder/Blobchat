@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 
 import { Box } from "@mui/material";
 
@@ -11,8 +10,6 @@ import SearchAppBar from "../UI/SearchAppBar";
 import SearchSuggestions from "./SearchSuggestions";
 
 function MainSidebar(props) {
-  const navigate = useNavigate();
-
   const dispatch = useDispatch();
 
   const users = useSelector((state) => state.user.users);
@@ -27,7 +24,6 @@ function MainSidebar(props) {
 
   const logoutHandler = () => {
     dispatch(signOutUser());
-    navigate("/auth");
     props.removeSubscriptions();
   };
 

@@ -10,18 +10,18 @@ import StyledCirclularProgressBar from "../UI/StyledCircularProgress";
 import ChatBox from "./ChatBox";
 
 function RecentChats(props) {
-  const [isLoading, setIsLoading] = useState(true);
-
   const dispatch = useDispatch();
 
-  const authId = useSelector((state) => state.auth.id);
+  const user = useSelector((state) => state.user.currentUser);
   const groups = useSelector((state) => state.group.groups);
 
   useEffect(() => {
-    dispatch(fetchGroupByUserId(authId, props.addSubscription));
-  }, [dispatch, authId]);
+    if (user?.uid) {
+      dispatch(fetchGroupByUserId(user.uid, props.addSubscription));
+    }
+  }, [dispatch, user]);
 
-  setTimeout(() => setIsLoading(false), 1000);
+  const isLoading = !user?.uid;
 
   return (
     <Box
@@ -48,7 +48,12 @@ function RecentChats(props) {
         {!isLoading && (
           <>
             {groups.length > 0 ? (
-              groups.map((group) => <ChatBox key={group.id} group={group} />)
+              groups.map((group) => (
+                <ChatBox
+                  key={group?.id ?? Math.random().toString()}
+                  group={group}
+                />
+              ))
             ) : (
               <Typography
                 sx={{ color: "primary.contrastText" }}

@@ -51,7 +51,6 @@ export const signUpUser = (email, password, username) => {
       await setDoc(doc(db, "users", user.uid), {
         username,
         email,
-        groups: [],
         uid: user.uid,
         isOnline: true,
       });

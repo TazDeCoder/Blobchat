@@ -64,10 +64,10 @@ function SignUp() {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
-  const onSubmit = async ({ email, password, username }) => {
+  const onSubmit = ({ email, password, username }) => {
     dispatch(signUpUser(email, password, username));
     setTimeout(() => {
-      if (authenticated) navigate("/home");
+      if (authenticated || !error) navigate("/home");
     }, 1000);
   };
 

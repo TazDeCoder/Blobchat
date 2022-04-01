@@ -20,7 +20,7 @@ function ChatBox(props) {
   const user = useSelector((state) => state.user.currentUser);
 
   const fetchRecipients = useCallback(async () => {
-    if (!user);
+    if (user?.uid || !props.group);
     const fetchedRecipients = await fetchUsersByGroup(props.group);
     const filteredRecipients = fetchedRecipients.filter(
       (recipient) => recipient.uid !== user.uid
@@ -34,7 +34,7 @@ function ChatBox(props) {
 
   const chatClickedHandler = () => {
     dispatch(fetchGroupById(props.group.id));
-    navigate(`/home/chats/${props.group.id}`);
+    navigate(props.group.id);
   };
 
   return (

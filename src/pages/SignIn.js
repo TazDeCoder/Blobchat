@@ -68,11 +68,11 @@ function SignIn() {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
-  const onSubmit = async ({ email, password }) => {
+  const onSubmit = ({ email, password }) => {
     if (Object.keys(errors).length > 0) return;
     dispatch(signInUser(email, password));
     setTimeout(() => {
-      if (authenticated) navigate("/home");
+      if (authenticated || !error) navigate("/home");
     }, 1000);
   };
 

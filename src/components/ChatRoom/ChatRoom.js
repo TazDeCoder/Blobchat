@@ -29,12 +29,11 @@ function ChatRoom(props) {
 
   const [recipient, setRecipient] = useState({});
 
-  const isLoading =
-    Object.keys(recipient).length === 0 || messages.length === 0;
+  const isLoading = Object.keys(recipient).length === 0;
 
   useEffect(() => {
-    dispatch(fetchMessagesByGroupId(params.groupId, props.addSubscription));
     dispatch(fetchGroupById(params.groupId));
+    dispatch(fetchMessagesByGroupId(params.groupId, props.addSubscription));
   }, [dispatch, params.groupId]);
 
   const fetchRecipients = useCallback(async () => {
