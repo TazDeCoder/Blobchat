@@ -19,7 +19,7 @@ import { AccountCircle, Visibility, VisibilityOff } from "@mui/icons-material";
 
 import { signUpUser } from "../store/auth/auth-actions";
 
-function SignUp() {
+function SignUp(props) {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
@@ -65,10 +65,8 @@ function SignUp() {
   };
 
   const onSubmit = ({ email, password, username }) => {
-    dispatch(signUpUser(email, password, username));
-    setTimeout(() => {
-      if (authenticated || !error) navigate("/home");
-    }, 1000);
+    dispatch(signUpUser(email, password, username, props.addSubscription));
+    if (authenticated || !error) navigate("/home");
   };
 
   return (

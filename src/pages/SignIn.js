@@ -19,7 +19,7 @@ import { LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
 
 import { signInUser } from "../store/auth/auth-actions";
 
-function SignIn() {
+function SignIn(props) {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
@@ -70,10 +70,8 @@ function SignIn() {
 
   const onSubmit = ({ email, password }) => {
     if (Object.keys(errors).length > 0) return;
-    dispatch(signInUser(email, password));
-    setTimeout(() => {
-      if (authenticated || !error) navigate("/home");
-    }, 1000);
+    dispatch(signInUser(email, password, props.addSubscription));
+    if (authenticated || !error) navigate("/home");
   };
 
   return (
