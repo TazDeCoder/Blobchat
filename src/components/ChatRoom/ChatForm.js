@@ -44,6 +44,8 @@ function ChatForm(props) {
           value={enteredMessage}
           multiline
           onChange={messageChangedHandler}
+          onFocus={() => props.onToggleIsTyping(true)}
+          onBlur={() => props.onToggleIsTyping(false)}
         />
 
         <Button

@@ -6,6 +6,8 @@ import { Box, Paper, Typography } from "@mui/material";
 
 import { format, isToday } from "date-fns";
 
+import { motion } from "framer-motion";
+
 import ChatMessage from "./ChatMessage";
 
 const ChatContainer = React.forwardRef((props, ref) => {
@@ -81,6 +83,49 @@ const ChatContainer = React.forwardRef((props, ref) => {
           );
         })}
       <span ref={ref}></span>
+      {props.isTyping && (
+        <div style={{ position: "absolute", bottom: 0, right: 0 }}>
+          <motion.div
+            style={{
+              position: "absolute",
+              bottom: 50,
+              right: 50,
+              width: "13px",
+              height: "13px",
+              borderRadius: "50%",
+              background: "#fff",
+            }}
+            animate={{ y: [-10, 0, 0] }}
+            transition={{ repeat: Infinity, repeatType: "reverse" }}
+          />
+          <motion.div
+            style={{
+              position: "absolute",
+              bottom: 50,
+              right: 30,
+              width: "13px",
+              height: "13px",
+              borderRadius: "50%",
+              background: "#fff",
+            }}
+            animate={{ y: [0, -10, 0] }}
+            transition={{ repeat: Infinity, repeatType: "reverse" }}
+          />
+          <motion.div
+            style={{
+              position: "absolute",
+              bottom: 50,
+              right: 10,
+              width: "13px",
+              height: "13px",
+              borderRadius: "50%",
+              background: "#fff",
+            }}
+            animate={{ y: [0, 0, -10] }}
+            transition={{ repeat: Infinity, repeatType: "reverse" }}
+          />
+        </div>
+      )}
     </Box>
   );
 });

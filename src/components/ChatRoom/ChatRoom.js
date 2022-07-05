@@ -28,6 +28,7 @@ function ChatRoom(props) {
   const messages = useSelector((state) => state.message.messages);
 
   const [recipient, setRecipient] = useState({});
+  const [isTyping, setIsTyping] = useState(false);
 
   const isLoading = Object.keys(recipient).length === 0;
 
@@ -77,8 +78,15 @@ function ChatRoom(props) {
       {!isLoading && (
         <>
           <ChatHeader receiver={recipient} />
-          <ChatContainer ref={chatRef} messages={messages} />
-          <ChatForm onSendMessage={sendMessageHandler} />
+          <ChatContainer
+            ref={chatRef}
+            messages={messages}
+            isTyping={isTyping}
+          />
+          <ChatForm
+            onSendMessage={sendMessageHandler}
+            onToggleIsTyping={setIsTyping}
+          />
         </>
       )}
     </Box>
